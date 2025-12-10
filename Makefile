@@ -21,12 +21,17 @@ all: part1 part2 part3 part4
 
 # ========== PART 1: Pi Calculation ==========
 part1: $(BIN_DIR)/tp_cuda_part_1_pi_sequential \
-	   $(BIN_DIR)/tp_cuda_part_1_pi_cuda_gpu \
-	   $(BIN_DIR)/tp_cuda_part_1_pi_cuda_shared_memory \
-	   $(BIN_DIR)/tp_cuda_part_1_pi_cuda_2_level_reduction \
-	   $(BIN_DIR)/tp_cuda_part_1_pi_multistage_reduction \
-	   $(BIN_DIR)/tp_cuda_part_1_pi_cuda_gpu_tableau \
-	   $(BIN_DIR)/tp_cuda_part_1_pi_cuda_tableau_2_level_reduction
+       $(BIN_DIR)/tp_cuda_part_1_pi_cuda_gpu \
+       $(BIN_DIR)/tp_cuda_part_1_pi_cuda_shared_memory \
+       $(BIN_DIR)/tp_cuda_part_1_pi_cuda_2_level_reduction \
+       $(BIN_DIR)/tp_cuda_part_1_pi_multistage_reduction \
+       $(BIN_DIR)/tp_cuda_part_1_pi_cuda_gpu_tableau \
+       $(BIN_DIR)/tp_cuda_part_1_pi_cuda_tableau_2_level_reduction
+	@echo "Running Part 1 benchmarks..."
+	python3 part1_build_csv.py
+	@echo "Generating Part 1 performance analysis..."
+	python3 part1_perf_analysis.py
+	@echo "Part 1 complete!"
 
 # Individual targets for Part 1
 pi_sequential: $(BIN_DIR)/tp_cuda_part_1_pi_sequential
@@ -64,6 +69,11 @@ part2: $(BIN_DIR)/tp_cuda_part_2_matrix_sequential \
        $(BIN_DIR)/tp_cuda_part_2_matrix_cuda_shared_memory \
 	   $(BIN_DIR)/tp_cuda_part_2_matrix_cuda_shared_memory_optimized \
 	   $(BIN_DIR)/tp_cuda_part_2_matrix_cuda_2_level_reduction
+	@echo "Running Part 2 benchmarks..."
+	python3 part2_build_csv.py
+	@echo "Generating Part 2 performance analysis..."
+	python3 part2_perf_analysis.py
+	@echo "Part 2 complete!"
 
 # Individual targets for Part 2
 matrix_sequential: $(BIN_DIR)/tp_cuda_part_2_matrix_sequential
