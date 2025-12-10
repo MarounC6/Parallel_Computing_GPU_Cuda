@@ -22,6 +22,7 @@ History: Written by Tim Mattson, 11/1999.
 
 
 static long num_steps = 1000000;
+static int threadsPerBlock = 256;
 double step;
 
 __global__
@@ -33,7 +34,7 @@ void computePiKernel (float* block_sums, float step)
     //*sum = 5.0; // Placeholder to avoid unused variable warning
 }
 
-void computePi ( float *sum, int num_steps, float step )
+void computePi ( float *sum, int num_steps, float step, int threadsPerBlock )
 {
     int size = num_steps * sizeof ( float );
     float* block_sums_gpu;
@@ -45,7 +46,6 @@ void computePi ( float *sum, int num_steps, float step )
     }
 
     // Lancer le kernel pour calculer les sommes des blocs
-    int threadsPerBlock = 1;
     int blocks = (num_steps + threadsPerBlock - 1) / threadsPerBlock;  // Calcul du nombre de blocs nécessaires
     
     computePiKernel<<<blocks, threadsPerBlock>>>(block_sums_gpu, step);
@@ -79,6 +79,9 @@ int main (int argc, char** argv)
         if ( ( strcmp( argv[ i ], "-N" ) == 0 ) || ( strcmp( argv[ i ], "-num_steps" ) == 0 ) ) {
             num_steps = atol( argv[ ++i ] );
             printf( "  User num_steps is %ld\n", num_steps );
+        } else if ( ( strcmp( argv[ i ], "-T" ) == 0 ) || ( strcmp( argv[ i ], "-threadsPerBlock" ) == 0 ) ) {
+            threadsPerBlock = atoi( argv[ ++i ] );
+            printf( "  User threadsPerBlock is %d\n", threadsPerBlock );
         } else if ( ( strcmp( argv[ i ], "-h" ) == 0 ) || ( strcmp( argv[ i ], "-help" ) == 0 ) ) {
             printf( "  Pi Options:\n" );
             printf( "  -num_steps (-N) <int>:      Number of steps to compute Pi (by default 100000000)\n" );
@@ -99,7 +102,7 @@ int main (int argc, char** argv)
 
       gettimeofday( &begin, NULL );
       
-	  computePi(sum, num_steps, step);
+	  computePi(sum, num_steps, step, threadsPerBlock);
 
 	  pi = step * (*sum);
 

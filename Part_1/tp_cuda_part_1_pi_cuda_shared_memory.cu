@@ -22,6 +22,7 @@ History: Written by Tim Mattson, 11/1999.
 
 
 static long num_steps = 1000000;
+static int threadsPerBlock = 256;
 double step;
 
 __global__
@@ -51,7 +52,7 @@ void computePiKernel(float* global_sum, float step, int num_steps)
 }
 
 
-void computePi ( float *sum, int num_steps, float step )
+void computePi ( float *sum, int num_steps, float step, int threadsPerBlock )
 {
     int size = 1 * sizeof ( float );
     float * sum_gpu;
@@ -63,7 +64,6 @@ void computePi ( float *sum, int num_steps, float step )
     }
     cudaMemcpy ( sum_gpu , sum , size , cudaMemcpyHostToDevice );
 
-    int threadsPerBlock = 256;
     int blocks = (num_steps + threadsPerBlock - 1) / threadsPerBlock;  // Calcul du nombre de blocs nécessaires
     int shared_mem_size = 1 * sizeof(float);
 
@@ -83,6 +83,9 @@ int main (int argc, char** argv)
         if ( ( strcmp( argv[ i ], "-N" ) == 0 ) || ( strcmp( argv[ i ], "-num_steps" ) == 0 ) ) {
             num_steps = atol( argv[ ++i ] );
             printf( "  User num_steps is %ld\n", num_steps );
+        } else if(( strcmp( argv[ i ], "-T" ) == 0 ) || ( strcmp( argv[ i ], "-threads_per_block" ) == 0 )) {
+            threadsPerBlock = atoi( argv[ ++i ] );
+            printf( "  User threads per block is %d\n", threadsPerBlock );
         } else if ( ( strcmp( argv[ i ], "-h" ) == 0 ) || ( strcmp( argv[ i ], "-help" ) == 0 ) ) {
             printf( "  Pi Options:\n" );
             printf( "  -num_steps (-N) <int>:      Number of steps to compute Pi (by default 100000000)\n" );
@@ -103,7 +106,7 @@ int main (int argc, char** argv)
 
       gettimeofday( &begin, NULL );
       
-	  computePi(sum, num_steps, step);
+	  computePi(sum, num_steps, step, threadsPerBlock);
 
 	  pi = step * (*sum);
 

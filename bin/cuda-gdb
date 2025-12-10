@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Check the cuda-gdb executables in order of preference
+# for unresolved shared library references.
+
+# Start with the value of CUDA_GDB_BINARIES, so that end-users can put their own
+# at the front of the list.
+CUDA_GDB_BINARIES="$CUDA_GDB_BINARIES cuda-gdb-python3.12-tui"
+CUDA_GDB_BINARIES="$CUDA_GDB_BINARIES cuda-gdb-python3.11-tui"
+CUDA_GDB_BINARIES="$CUDA_GDB_BINARIES cuda-gdb-python3.10-tui"
+CUDA_GDB_BINARIES="$CUDA_GDB_BINARIES cuda-gdb-python3.9-tui"
+CUDA_GDB_BINARIES="$CUDA_GDB_BINARIES cuda-gdb-python3.8-tui"
+CUDA_GDB_BINARIES="$CUDA_GDB_BINARIES cuda-gdb-minimal"
+
+PRINT_VERSION=0
+for arg in $*; do
+    if [ "$arg" == "--version" ]; then
+        PRINT_VERSION=1
+        break
+    fi
+done
+
+exec_cuda_gdb() {
+    binary="$1"
+    shift
+
+    # Check to see if the specified cuda-gdb executable will run on this
+    # system by invoking cuda-gdb with --version. If it succeeds
+    # with exit code 0, go ahead and run the binary
+    $binary --version > /dev/null 2>&1
+    if [ $? == 0 ]; then
+        if [ "$PRINT_VERSION" != 0 ]; then
+            echo "exec:" "$binary" "$@"
+        fi
+        exec "$binary" "$@"
+    fi
+}
+
+# Check alongside this wrapper script.
+# Note that 'dirname cuda-gdb-python3.12-tui' will return '.'
+# even without an explicit leading './'
+WRAPPER_SCRIPT_DIR=`dirname $0`
+for binary in $CUDA_GDB_BINARIES; do
+    if [ -f "$WRAPPER_SCRIPT_DIR/$binary" ]; then
+        exec_cuda_gdb "$WRAPPER_SCRIPT_DIR/$binary" "$@"
+    fi
+done
+
+# Check the $PATH
+for binary in $CUDA_GDB_BINARIES; do
+    exec_cuda_gdb "$binary" "$@"
+done
+
+echo "Could not find system compatible cuda-gdb binary executable" 1>&2
+echo "Supported binaries are:" $CUDA_GDB_BINARIES 1>&2
+exit 1

@@ -169,6 +169,8 @@ int main( int argc, char* argv[] )
   printf( "  N( %d ) M( %d ) nrepeat ( %d ) problem( %g MB ) time( %g s ) bandwidth( %g GB/s )\n",
           N, M, nrepeat, Gbytes * 1000, time, Gbytes * nrepeat / time );
 
+  printf("in %lf seconds\n", time);
+
   std::free(A);
   std::free(y);
   std::free(x);

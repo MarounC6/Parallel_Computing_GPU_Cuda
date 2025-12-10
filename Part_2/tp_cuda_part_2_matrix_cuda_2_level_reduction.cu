@@ -53,6 +53,8 @@
 
 void checkSizes( int &N, int &M, int &S, int &nrepeat );
 
+int thread_per_block = 16;
+
 __global__
 void computeSumMatrixKernel( float* y, float* x, float* A, int N, int M, float* result) 
 {
@@ -66,7 +68,7 @@ void computeSumMatrixKernel( float* y, float* x, float* A, int N, int M, float* 
     }
 }
 
-void computeSumMatrix( float* y, float* x, float* A, int N, int M, float *result) 
+void computeSumMatrix( float* y, float* x, float* A, int N, int M, float *result, int thread_per_block) 
 {
     // Allocate memory for result on GPU
     int size_result = 1 * sizeof(float);
@@ -105,7 +107,6 @@ void computeSumMatrix( float* y, float* x, float* A, int N, int M, float *result
     cudaMemcpy(A_gpu, A, N * M * sizeof(float), cudaMemcpyHostToDevice);
 
     // Launch kernel
-    int thread_per_block = 16;
     int num_blocks = (N + thread_per_block - 1) / thread_per_block;
 
     computeSumMatrixKernel<<<num_blocks, thread_per_block>>>(y_gpu, x_gpu, A_gpu, N, M, result_gpu);
@@ -143,6 +144,10 @@ int main( int argc, char* argv[] )
     }
     else if ( strcmp( argv[ i ], "-nrepeat" ) == 0 ) {
       nrepeat = atoi( argv[ ++i ] );
+    }
+    else if( ( strcmp( argv[ i ], "-T" ) == 0 ) || ( strcmp( argv[ i ], "-threadsPerBlock" ) == 0 ) ) {
+        thread_per_block = atoi(argv[++i]);
+        printf( "  User threadsPerBlock is %d\n", thread_per_block );
     }
     else if ( ( strcmp( argv[ i ], "-h" ) == 0 ) || ( strcmp( argv[ i ], "-help" ) == 0 ) ) {
       printf( "  y^T*A*x Options:\n" );
@@ -201,7 +206,7 @@ int main( int argc, char* argv[] )
         // Sum the results of the previous step into a single variable (result)
     float *result = (float *)malloc(sizeof(float));
     *result = 0.0;
-    computeSumMatrix(y, x, A, N, M, result);
+    computeSumMatrix(y, x, A, N, M, result, thread_per_block);
 
     // Output result.
     if ( repeat == ( nrepeat - 1 ) ) {
@@ -232,6 +237,8 @@ int main( int argc, char* argv[] )
   // Print results (problem size, time and bandwidth in GB/s).
   printf( "  N( %d ) M( %d ) nrepeat ( %d ) problem( %g MB ) time( %g s ) bandwidth( %g GB/s )\n",
           N, M, nrepeat, Gbytes * 1000, time, Gbytes * nrepeat / time );
+
+          printf("in %lf seconds\n", time);
 
   std::free(A);
   std::free(y);
