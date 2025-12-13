@@ -15,9 +15,9 @@ $(shell mkdir -p $(BIN_DIR))
 .PHONY: all part1 part2 part3 clean help
 .PHONY: pi_sequential pi_cuda_gpu pi_cuda_shared_memory pi_cuda_2_level_reduction pi_multistage_reduction pi_cuda_gpu_tableau pi_cuda_tableau_2_level_reduction
 .PHONY: matrix_sequential matrix_cuda_gpu matrix_cuda_shared_memory matrix_cuda_shared_memory_optimized matrix_cuda_2_level_reduction
-.PHONY: matrix_mult_sequential
+.PHONY: matrix_mult_sequential matrix_mult_cuda_1thread matrix_mult_cuda_shared matrix_mult_cuda_float matrix_mult_cuda_half
 
-all: part1 part2 part3 part4
+all: part1 part2 part3
 
 # ========== PART 1: Pi Calculation ==========
 part1: $(BIN_DIR)/tp_cuda_part_1_pi_sequential \
@@ -98,12 +98,37 @@ $(BIN_DIR)/tp_cuda_part_2_matrix_cuda_2_level_reduction: $(PART2_DIR)/tp_cuda_pa
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # ========== PART 3: Matrix Multiplication ==========
-part3: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential
+part3: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential \
+       $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_1thread \
+       $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_shared \
+       $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_float \
+       $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_half
+	@echo "Running Part 3 benchmarks..."
+	python3 part3_build_csv.py
+	@echo "Generating Part 3 performance analysis..."
+	python3 part3_perf_analysis.py
+	@echo "Part 3 complete!"
 
 # Individual targets for Part 3
-matrix_mult_sequential: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential_sequential
+matrix_mult_sequential: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential
+matrix_mult_cuda_1thread: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_1thread
+matrix_mult_cuda_shared: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_shared
+matrix_mult_cuda_float: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_float
+matrix_mult_cuda_half: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_half
 
-$(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential_sequential: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_sequential.cu
+$(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_sequential.cu
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+$(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_1thread: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_cuda_1thread.cu
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+$(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_shared: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_cuda_shared.cu
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+$(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_float: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_cuda_float.cu
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+$(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_half: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_cuda_half.cu
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # ========== CLEAN ==========
@@ -137,7 +162,11 @@ help:
 	@echo "  matrix_cuda_2_level_reduction           - Compile cuda 2 level reduction vector operations"
 	@echo ""
 	@echo "Part 3 - Individual Files:"
-	@echo "  matrix_mult_sequential - Compile sequential matrix multiplication"
+	@echo "  matrix_mult_sequential      - Compile sequential matrix multiplication"
+	@echo "  matrix_mult_cuda_1thread    - Compile CUDA matrix multiplication (1 thread per block)"
+	@echo "  matrix_mult_cuda_shared     - Compile CUDA matrix multiplication (shared memory)"
+	@echo "  matrix_mult_cuda_float      - Compile CUDA matrix multiplication (float precision)"
+	@echo "  matrix_mult_cuda_half       - Compile CUDA matrix multiplication (half precision)"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  clean  - Remove all compiled binaries"
