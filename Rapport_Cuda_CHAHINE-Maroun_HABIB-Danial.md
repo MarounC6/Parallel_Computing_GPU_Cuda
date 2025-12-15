@@ -123,7 +123,7 @@ Tests effectués avec :
 
 *2. Version CUDA simple (matrix_cuda_gpu)*
 - Chaque thread calcule un élément du vecteur résultat
-- 1 threqd pqr blck, et N blocks
+- 1 thread par block, et N blocks
 - Parallélisme naturel : N threads pour N éléments de sortie
 - Chaque thread fait M multiplications + M additions (parcourt une ligne de A)
 - Gain important par rapport au sequentiel
@@ -250,9 +250,9 @@ Analyse du débit de calcul en milliards d'opérations par seconde :
 - Séquentiel : **1.41 GFLOPS** (CPU sature)
 - CUDA 1-thread : **191.55 GFLOPS** (136x amélioration)
 - CUDA Shared : **219.98 GFLOPS**
-- CUDA Float : **245.25 GFLOPS** (⭐ meilleure performance)
+- CUDA Float : **245.25 GFLOPS** (meilleure performance)
 
-**Observation importante** : Le GPU maintient un débit élevé même avec l'augmentation de la charge, contrairement au CPU qui plafonne dans le code séquentiel. Le débit en GFlops (Floating operations per second) est très élevé dans les codes avec du parallélisme massif, ce qui montre qu'on performe plus d'opérations par seconde, afin d'optimiser le temps.
+**Observation importante** : Le GPU maintient un débit élevé même avec l'augmentation de la charge, contrairement au CPU qui plafonne dans le code séquentiel. Le débit en GFlops (Floating operations per second) est très élevé dans les codes avec du parallélisme massif, ce qui montre qu'on performe plus d'opérations par seconde, afin d'optimiser le temps. Le parallélisme avec Cuda sur les GPU améliorent bien nos performances.
 
 #### Synthèse des résultats :
 
