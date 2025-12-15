@@ -1,5 +1,0 @@
-#!/bin/sh
-
-DIR=$(dirname "$(readlink -f -- "$0")")
-echo "Warning: nsight-sys has been deprecated and will be removed in a future release. Please use '$DIR/nsys-ui' instead" >&2
-exec "$DIR/nsys-ui"
