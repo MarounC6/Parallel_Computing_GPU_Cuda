@@ -1,8 +1,8 @@
 # TP CUDA - Programmation GPU
 
-**Auteurs :** CHAHINE Maroun, HABIB Danial  
-**Date :** Décembre 2025  
-**Formation :** 5IF - INSA Lyon
+*Auteurs :* CHAHINE Maroun, HABIB Danial  
+*Date :* Décembre 2025  
+*Formation :* 5IF - INSA Lyon
 
 ---
 
@@ -23,20 +23,20 @@ L'objectif de cette première partie est de calculer une approximation de π en 
 $$\pi = \int_0^1 \frac{4}{1+x^2} dx$$
 
 Nous avons implémenté plusieurs versions du programme pour comparer les performances :
-- **Version séquentielle** (CPU)
-- **Version CUDA simple** (GPU)
-- **Version avec mémoire partagée** (GPU optimisée)
-- **Version avec réduction à 2 niveaux** (GPU optimisée)
-- **Version avec réduction multi-étages** (GPU optimisée)
-- **Version avec tableau** (GPU)
-- **Version tableau avec réduction à 2 niveaux** (GPU optimisée)
+- *Version séquentielle*
+- *Version CUDA simple* (GPU)
+- *Version avec mémoire partagée* (GPU optimisée)
+- *Version avec réduction à 2 niveaux* (GPU optimisée)
+- *Version avec réduction multi-étages* (GPU optimisée)
+- *Version avec tableau* (GPU)
+- *Version tableau avec réduction à 2 niveaux* (GPU optimisée)
 
 ### 1.2 Méthodologie
 
 Pour chaque implémentation, nous avons effectué des tests avec :
-- **Nombre de pas** : 1 000 et 1 000 000
-- **Threads par bloc** : 1, 32, 64, 128, 256
-- **Répétitions** : 10 exécutions par configuration pour obtenir des moyennes fiables
+- *Nombre de pas* : 1 000 et 1 000 000
+- *Threads par bloc* : 1, 32, 64, 128, 256
+- *Répétitions* : 10 exécutions par configuration pour obtenir des moyennes fiables
 
 ### 1.3 Résultats et Analyse
 
@@ -44,38 +44,35 @@ Pour chaque implémentation, nous avons effectué des tests avec :
 
 #### Observations principales :
 
-**1. Version séquentielle (CPU)**
-- Temps d'exécution stable mais lent
+*1. Version séquentielle*
+- Temps d'exécution stable
 - Pas d'influence du paramètre "threads par bloc" (normal, car CPU)
-- Performance de référence pour calculer les speedups
 
-**2. Version CUDA simple (pi_cuda_gpu)**
+*2. Version CUDA simple (pi_cuda_gpu)*
 - Premier portage sur GPU
-- Amélioration significative par rapport au CPU
 - Sensible au nombre de threads par bloc
 - Meilleure performance autour de 128-256 threads/bloc
 
-**3. Version avec mémoire partagée (pi_cuda_shared_memory)**
-- Utilisation de `__shared__` pour réduire les accès à la mémoire globale
+*3. Version avec mémoire partagée (pi_cuda_shared_memory)*
+- Utilisation de __shared__ pour réduire les accès à la mémoire globale
 - Réduction des latences mémoire
 - Performance améliorée par rapport à la version simple
 - La mémoire partagée permet aux threads d'un même bloc de collaborer efficacement
 
-**4. Versions avec réduction (2-level et multistage)**
+*4. Versions avec réduction (2-level et multistage)*
 - Approches optimisées pour minimiser les synchronisations
 - Réduction hiérarchique des résultats partiels
-- **Multistage reduction** : meilleure performance globale
+- *Multistage reduction* : meilleure performance globale
 - Évite les goulots d'étranglement lors de la combinaison des résultats
 
-**5. Versions avec tableau**
+*5. Versions avec tableau*
 - Stockage des résultats partiels dans un tableau global
 - Utile pour déboguer et analyser les contributions individuelles
 - Performance légèrement inférieure aux versions avec réduction optimale
 
 #### Speedup observé :
-- **GPU vs CPU** : Accélération jusqu'à **10-50x** selon la configuration
-- **Impact du nombre de pas** : Plus le calcul est complexe (1M vs 1K pas), plus le GPU montre son avantage
-- **Threads optimaux** : 128-256 threads/bloc offrent le meilleur compromis
+- *Impact du nombre de pas* : Plus le calcul est complexe (1M vs 1K pas), plus le GPU montre son avantage
+- *Threads optimaux* : 128-256 threads/bloc offrent le meilleur compromis
 
 ### 1.4 Conclusion Partie 1
 
@@ -87,31 +84,31 @@ Les résultats démontrent clairement l'intérêt du GPU pour les calculs massiv
 
 ### 2.1 Objectif
 
-Cette partie consiste à calculer le produit d'une matrice par un vecteur : **Y = A × X**
+Cette partie consiste à calculer le produit d'une matrice par un vecteur : *valeur = A . y . X* avec . un produit scalaire entre vecteur
 
 Avec :
-- **A** : matrice de dimension **N×M** (N lignes, M colonnes)
-- **X** : vecteur de dimension **M** (colonne)
-- **Y** : vecteur résultat de dimension **N** (colonne)
+- *A* : matrice de dimension *N×M* (N lignes, M colonnes)
+- *X* : vecteur de dimension *M* (colonne)
+- *Y* : vecteur résultat de dimension *N* (colonne)
 
 Implémentations réalisées :
-- **Version séquentielle** (CPU)
-- **Version CUDA simple** (GPU)
-- **Version avec mémoire partagée** (GPU)
-- **Version avec mémoire partagée optimisée** (GPU)
-- **Version avec réduction à 2 niveaux** (GPU)
+- *Version séquentielle*
+- *Version CUDA simple* (GPU)
+- *Version avec mémoire partagée* (GPU)
+- *Version avec mémoire partagée optimisée* (GPU)
+- *Version avec réduction à 2 niveaux* (GPU)
 
 ### 2.2 Méthodologie
 
 Tests effectués avec :
-- **Tailles de matrice** : 
+- *Tailles de matrice* : 
   - N = 2^n avec n ∈ {2, 4, 6, 8, 10, 12} (nombre de lignes)
   - M = 2^m avec m ∈ {1, 3, 7, 9, 11} (nombre de colonnes)
   - Donc N varie de 4 à 4096, et M varie selon les tests
-- **Vecteur X** : de dimension M (nombre de colonnes de A)
-- **Vecteur Y** : de dimension N (nombre de lignes de A)
-- **Threads par bloc** : 1, 32, 64, 128, 256
-- **Répétitions** : 10 exécutions par configuration
+- *Vecteur X* : de dimension M (nombre de colonnes de A)
+- *Vecteur Y* : de dimension N (nombre de lignes de A)
+- *Threads par bloc* : 1, 32, 64, 128, 256
+- *Répétitions* : 10 exécutions par configuration
 
 ### 2.3 Résultats et Analyse
 
@@ -119,47 +116,43 @@ Tests effectués avec :
 
 #### Observations principales :
 
-**1. Version séquentielle (CPU)**
+*1. Version séquentielle*
 - Temps d'exécution croît avec N×M (O(N×M))
 - Devient rapidement prohibitif pour les grandes matrices
 - Aucune exploitation du parallélisme disponible
 
-**2. Version CUDA simple (matrix_cuda_gpu)**
-- Chaque thread calcule un élément du vecteur résultat Y
+*2. Version CUDA simple (matrix_cuda_gpu)*
+- Chaque thread calcule un élément du vecteur résultat
+- 1 threqd pqr blck, et N blocks
 - Parallélisme naturel : N threads pour N éléments de sortie
 - Chaque thread fait M multiplications + M additions (parcourt une ligne de A)
-- Gain important par rapport au CPU
+- Gain important par rapport au sequentiel
 - Bonne scalabilité avec la taille de la matrice
 
-**3. Version avec mémoire partagée (matrix_cuda_shared_memory)**
+*3. Version avec mémoire partagée (matrix_cuda_shared_memory)*
 - Cache les données fréquemment accédées dans la mémoire partagée
 - Réduit les accès à la mémoire globale (plus lente)
 - Amélioration notable des performances
 - Particulièrement efficace pour les grandes matrices où le ratio calcul/mémoire est élevé
 
-**4. Version optimisée (matrix_cuda_shared_memory_optimized)**
-- Optimisations supplémentaires :
-  - Coalescence des accès mémoire
-  - Minimisation des divergences de branches
-  - Meilleure utilisation des registres
-- **Meilleures performances globales**
-- Exploite au maximum l'architecture GPU
+*4. Version optimisée (matrix_cuda_shared_memory_optimized)*
+- Une version qui n'utilise pas le atomic add et utilise plus de shared memory pour fonctionner plus rapidement
 
-**5. Version avec réduction à 2 niveaux (matrix_cuda_2_level_reduction)**
+*5. Version avec réduction à 2 niveaux (matrix_cuda_2_level_reduction)*
 - Réduction hiérarchique des produits partiels
 - Deux niveaux de réduction : au sein du bloc puis globalement
 - Performance comparable à la version optimisée
 - Approche différente mais résultats similaires
 
 #### Speedup observé :
-- **GPU vs CPU** : Accélération jusqu'à **100-200x** pour les grandes matrices
-- **Impact de N** : Plus la matrice est grande, plus le GPU est avantageux
-- **Mémoire partagée** : Gain de **20-40%** par rapport à la version simple
-- **Optimisations** : Gain additionnel de **10-20%**
+- *GPU vs Sequentiel* : Accélération jusqu'à *100-200x* pour les grandes matrices
+- *Impact de N* : Plus la matrice est grande, plus le GPU est avantageux
+- *Mémoire partagée* : Gain de *20-40%* par rapport à la version simple
+- *Optimisations* : Gain additionnel de *10-20%*
 
 ### 2.4 Conclusion Partie 2
 
-Le produit matrice-vecteur (Y = A×X avec A de taille N×M) est une opération idéale pour le GPU car chaque élément du résultat Y peut être calculé indépendamment. Chaque thread traite une ligne de la matrice A (M éléments) pour produire un élément de Y. Les optimisations mémoire (mémoire partagée, coalescence) sont essentielles pour atteindre les meilleures performances. Pour les grandes matrices (N > 1000, M > 1000), le GPU devient indispensable.
+Le produit matrice-vecteur est une opération idéale pour le GPU car chaque élément du résultat Y peut être calculé indépendamment. Chaque thread traite une ligne de la matrice A (M éléments) pour produire un élément de Y. Les optimisations mémoire (mémoire partagée, coalescence) sont essentielles pour atteindre les meilleures performances. Pour les grandes matrices (N > 1000, M > 1000), le GPU devient indispensable.
 
 ---
 
