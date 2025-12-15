@@ -493,5 +493,3 @@ Les techniques apprises sont directement applicables à :
 Le GPU n'est plus une option mais une nécessité pour le calcul haute performance moderne ! 🚀
 
 ---
-
-**Fin du rapport**
