@@ -67,8 +67,8 @@ if 'matrix_mult_sequential' in df_square_pivot.columns:
     print("  Saved: speedup_square_matrices.png")
     plt.close()
 
-# ========== Plot 3: Performance comparison by precision (double vs float vs half) ==========
-precision_execs = ['matrix_mult_cuda_shared', 'matrix_mult_cuda_float', 'matrix_mult_cuda_half']
+# ========== Plot 3: Performance comparison by precision (double vs float) ==========
+precision_execs = ['matrix_mult_cuda_shared', 'matrix_mult_cuda_float']
 df_precision = df_square[df_square['executable'].isin(precision_execs)]
 
 if not df_precision.empty:
@@ -81,7 +81,7 @@ if not df_precision.empty:
     
     plt.xlabel('Matrix Dimension (N=M=P)', fontsize=12)
     plt.ylabel('Time (seconds)', fontsize=12)
-    plt.title('Precision Comparison (Double vs Float vs Half)', fontsize=14, fontweight='bold')
+    plt.title('Precision Comparison (Double vs Float)', fontsize=14, fontweight='bold')
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.yscale('log')

@@ -179,7 +179,8 @@ Implémentations réalisées :
 - **Version CUDA 1 thread/bloc** (Q3.1 - parallélisme minimal)
 - **Version avec mémoire partagée** (Q3.5 - tiling optimisé)
 - **Version float** (Q3.9 - précision simple 32 bits)
-- **Version half** (Q3.13 - précision réduite 16 bits)
+
+**Note** : La version half precision (Q3.13) n'a pas été implémentée car la bibliothèque `half.hpp` recommandée dans le sujet n'est pas compatible avec CUDA. Les fonctions de cette bibliothèque sont marquées `__host__` uniquement et ne peuvent pas être appelées depuis les kernels GPU (`__device__`). L'alternative `cuda_fp16.h` aurait pu être utilisée, mais nécessite une architecture GPU récente (compute capability ≥ 5.3) qui n'était pas disponible sur la machine de test.
 
 ### 3.2 Méthodologie
 
@@ -299,36 +300,33 @@ atomicAdd(&C[row*Ndim+col], sum);
   - Plus de valeurs tiennent en cache/mémoire partagée
   - Speedup attendu : **1.5-2x vs version double**
 
-#### 3.3.5 Version Half (Q3.13)
+#### 3.3.5 Version Half Precision (Q3.13) - Non implémentée
 
-**Objectif** : Explorer la précision ultra-réduite (16 bits) avec la bibliothèque `half.hpp`.
+**Problème rencontré** : La bibliothèque `half.hpp` recommandée dans le sujet (half_float) n'est **pas compatible avec CUDA**.
 
-**Implémentation** :
-```cuda
-#include "half.hpp"
-using half_float::half;
+**Explication technique** :
+- Les fonctions de `half.hpp` sont marquées `__host__` uniquement
+- Elles ne peuvent pas être appelées depuis les kernels GPU (`__device__` ou `__global__`)
+- Erreur de compilation : `calling a __host__ function from a __global__ function is not allowed`
 
-half *A, *B, *C;
-__shared__ half As[TILE_SIZE][TILE_SIZE];
-__shared__ half Bs[TILE_SIZE][TILE_SIZE];
+**Alternatives possibles** :
+1. **`cuda_fp16.h`** : Bibliothèque native CUDA pour half precision
+   - Nécessite compute capability ≥ 5.3 (architecture Maxwell ou plus récente)
+   - Non disponible sur la machine de test utilisée
+   
+2. **`--expt-relaxed-constexpr`** : Flag expérimental
+   - Ne résout pas le problème fondamental d'incompatibilité
 
-// Accumulation en float pour la précision
-float sum = 0.0f;
-for (int k = 0; k < TILE_SIZE; k++) {
-    sum += float(As[ty][k]) * float(Bs[k][tx]);
-}
-C[row*Ndim+col] = half(sum);
-```
-
-**Questions Q3.14-Q3.16** :
-- **Q3.14** : Précision = 3-4 chiffres significatifs seulement
-- **Q3.15** : Erreur attendue = ~10^-3 à 10^-4 (perte significative)
-- **Q3.16** : Performance attendue - **Variable** :
+**Réponses théoriques Q3.14-Q3.16** :
+- **Q3.14** : Précision half = 3-4 chiffres significatifs (vs 7-8 pour float, 15-16 pour double)
+- **Q3.15** : Erreur attendue = ~10^-3 à 10^-4 (perte de précision significative)
+- **Q3.16** : Performance théorique :
   - Bande passante divisée par 4 vs double, par 2 vs float
-  - Mais : pas tous les GPUs supportent bien half
-  - Tensors Cores (GPUs récents) : excellentes performances
-  - GPUs anciens : peut être plus lent que float
-  - Trade-off précision/vitesse intéressant pour ML/IA
+  - Sur GPUs modernes avec Tensor Cores : accélération possible de 2-8x vs float
+  - Sur GPUs anciens : peut être plus lent que float (conversion overhead)
+  - Trade-off précision/vitesse très intéressant pour ML/IA où la précision réduite suffit
+
+**Conclusion** : L'implémentation half precision nécessite soit une bibliothèque compatible CUDA native, soit une architecture GPU plus récente. Cette version n'a donc pas été incluse dans les benchmarks.
 
 ### 3.4 Résultats et Analyse
 
@@ -348,19 +346,16 @@ Une fois les tests exécutés avec `python3 part3_build_csv.py`, les graphiques 
 - 1-thread : 10-20x vs CPU
 - Shared memory : 100-200x vs CPU
 - Float : 150-300x vs CPU
-- Half : Variable selon GPU (100-400x possible)
 
 **GFLOPS** :
 - Séquentiel : < 1 GFLOPS
 - 1-thread : 5-10 GFLOPS
 - Shared memory : 100-200 GFLOPS
 - Float : 200-400 GFLOPS
-- Half : 400-800 GFLOPS (si Tensor Cores)
 
 **Précision** :
 - Double : erreur < 10^-12
 - Float : erreur < 10^-6
-- Half : erreur < 10^-3
 
 ### 3.5 Corrections et Optimisations Réalisées
 

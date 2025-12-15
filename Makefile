@@ -101,8 +101,7 @@ $(BIN_DIR)/tp_cuda_part_2_matrix_cuda_2_level_reduction: $(PART2_DIR)/tp_cuda_pa
 part3: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential \
        $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_1thread \
        $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_shared \
-       $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_float \
-       $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_half
+       $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_float
 	@echo "Running Part 3 benchmarks..."
 	python3 part3_build_csv.py
 	@echo "Generating Part 3 performance analysis..."
@@ -114,7 +113,6 @@ matrix_mult_sequential: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential
 matrix_mult_cuda_1thread: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_1thread
 matrix_mult_cuda_shared: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_shared
 matrix_mult_cuda_float: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_float
-matrix_mult_cuda_half: $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_half
 
 $(BIN_DIR)/tp_cuda_part_3_matrix_mult_sequential: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_sequential.cu
 	$(CXX) $(CXXFLAGS) $< -o $@
@@ -126,9 +124,6 @@ $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_shared: $(PART3_DIR)/tp_cuda_part_3_m
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 $(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_float: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_cuda_float.cu
-	$(CXX) $(CXXFLAGS) $< -o $@
-
-$(BIN_DIR)/tp_cuda_part_3_matrix_mult_cuda_half: $(PART3_DIR)/tp_cuda_part_3_matrix_mult_cuda_half.cu
 	$(CXX) $(CXXFLAGS) $< -o $@
 
 # ========== CLEAN ==========

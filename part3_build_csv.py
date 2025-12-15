@@ -16,8 +16,7 @@ executables = [
     'matrix_mult_sequential',
     'matrix_mult_cuda_1thread',
     'matrix_mult_cuda_shared',
-    'matrix_mult_cuda_float',
-    'matrix_mult_cuda_half'
+    'matrix_mult_cuda_float'
 ]
 
 for n in dimensions:
